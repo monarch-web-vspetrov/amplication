@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Car {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  carNumber String?
+  brand     String?
+  carType   String?
+  queues    Queue[]
+}
+
+model Service {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  serviceName   String?
+  price         Float?
+  estimatedTime Int?
+  queues        Queue[]
+}
+
+model Queue {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status    String?
+  car       Car?     @relation(fields: [carId], references: [id])
+  carId     String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+  serviceId String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  firstName        String?
+  lastName         String?
+  username         String    @unique
+  email            String?   @unique
+  password         String
+  roles            Json
+  registrationDate DateTime?
+  userType         String?
+  lastModifiedDate DateTime?
+  queues           Queue[]
+}
