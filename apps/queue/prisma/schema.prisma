@@ -1,0 +1,167 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  firstName          String?
+  lastName           String?
+  username           String              @unique
+  email              String?             @unique
+  password           String
+  roles              Json
+  verificationTokens VerificationToken[]
+  cars               Car[]
+  queues             Queue[]
+  sessions           Session[]
+  accounts           Account[]
+}
+
+model QueueStatus {
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  statusName     String?
+  queues         Queue[]
+  queueHistories QueueHistory[]
+}
+
+model Account {
+  id                    String   @id @default(cuid())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  refreshToken          String?
+  accessToken           String?
+  expiresAt             Int?
+  tokenType             String?
+  scope                 String?
+  idToken               String?
+  sessionState          String?
+  refreshTokenExpiresIn Int?
+  userId                String?
+  typeField             String?
+  provider              String?
+  providerAccountId     String?
+  user                  User?    @relation(fields: [userId], references: [id])
+  userId                String?
+}
+
+model VerificationToken {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  identifier String?
+  token      String?
+  expires    DateTime?
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessionToken String?
+  userId       String?
+  expires      DateTime?
+  user         User?     @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model Queue {
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  position       Int?
+  box            Int?
+  userId         String?
+  userPhone      String?
+  carId          Int?
+  carType        Int?
+  joinInQueue    DateTime?
+  statusId       Int?
+  finished       DateTime?
+  carLeave       Boolean?
+  serviceId      Int?
+  user           User?          @relation(fields: [userId], references: [id])
+  userId         String?
+  car            Car?           @relation(fields: [carId], references: [id])
+  carId          String?
+  queueStatus    QueueStatus?   @relation(fields: [queueStatusId], references: [id])
+  queueStatusId  String?
+  queueHistories QueueHistory[]
+  service        Service?       @relation(fields: [serviceId], references: [id])
+  serviceId      String?
+}
+
+model CarBrand {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  brandName String?
+  cars      Car[]
+}
+
+model QueueHistory {
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  queueId       Int?
+  oldStatusId   Int?
+  newStatusId   Int?
+  changedAt     DateTime?
+  queue         Queue?       @relation(fields: [queueId], references: [id])
+  queueId       String?
+  queueStatus   QueueStatus? @relation(fields: [queueStatusId], references: [id])
+  queueStatusId String?
+}
+
+model Car {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userId     String?
+  brandId    Int?
+  carTypeId  Int?
+  model      String?
+  carNumber  String?
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+  carBrand   CarBrand? @relation(fields: [carBrandId], references: [id])
+  carBrandId String?
+  carType    CarType?  @relation(fields: [carTypeId], references: [id])
+  carTypeId  String?
+  queues     Queue[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  serviceName String?
+  cost        Int?
+  timeSpend   Int?
+  queues      Queue[]
+}
+
+model CarType {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  typeField String?
+  cars      Car[]
+}
+
+model Box {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  boxNumber Int?
+}
